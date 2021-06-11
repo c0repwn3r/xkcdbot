@@ -3,13 +3,13 @@ const client = new Discord.Client();
 
 const bot_options = require("../options/bot_options.json");
 
+const axios = require('axios');
+
 const prefix = "x!";
 
 const commands = [
     'get',
     'help',
-    'ping',
-    'pwr',
     'test-internal',
     'test-general'
 ];
@@ -20,6 +20,31 @@ class BotError {
         this.description = description;
         this.code = code;
     }
+}
+
+class XKCD {
+    constructor(num, safe_title, title, alt, month, day, year, url) {
+        this.num = num;
+        this.safe_title = safe_title;
+        this.title = title;
+        this.alt = alt;
+        this.month = month;
+        this.day = day;
+        this.year = year;
+        this.url = url;
+    }
+}
+
+function getXKCDEmbed(xkcd) {
+    return new Discord.MessageEmbed()
+    .setAuthor(`XKCD #${xkcd.num}`)
+    .setTitle(xkcd.title)
+    .setURL(`https://xkcd.com/${xkcd.num}/`)
+    .setDescription(`*${xkcd.alt}*`)
+    .setImage(xkcd.url)
+    .setFooter(`Written with <3 by c0repwn3r - Images by XKCD`)
+    .setColor("#7703fc")
+    .setTimestamp();
 }
 
 function getBotError(error) {
@@ -40,9 +65,20 @@ function getError(error) {
     .setTimestamp();
 }
 
-async function getLatest() {
-
+function getHelp() {
+    return new Discord.MessageEmbed()
+    .setTitle('XKCDBot Help')
+    .setDescription('Prefix: x!\nCurrent Commands:')
+    .addFields(
+        { name: 'x!get <latest|random|[numeric id]>', value: 'Get an XKCD, either the latest, a random XKCD, or get one by numeric ID.'},
+        { name: 'x!help', value: 'Display this help message.'}
+    )
+    .setColor("#00ff00")
+    .setFooter("Written with <3 by c0repwn3r - Images by XKCD")
+    .setTimestamp();
 }
+
+const ingest = 'https://xkcd.com/'
 
 async function parseCommand(commandArray, msg) {
     if (!(commandArray instanceof Array)) {
@@ -77,6 +113,10 @@ async function parseCommand(commandArray, msg) {
     }
 
     switch (seperator.toLowerCase()) {
+        case 'help':
+            msg.channel.send(getHelp());
+            msg.delete();
+            break;
         case 'test-internal':
             var error = msg.channel.send(
                 getBotError(
@@ -125,11 +165,50 @@ async function parseCommand(commandArray, msg) {
             }
 
             if (commandArray[1] === "latest") {
-                console.log("get latest");
+                console.log("get latest")
+                axios.get(ingest + 'info.0.json')
+                .then(response => {
+                    let data = response.data;
+                    let xkcd = new XKCD(data.num, data.safe_title, data.title, data.alt, data.month, data.day, data.year, data.img);
+                    msg.channel.send(getXKCDEmbed(xkcd));
+                    msg.delete();
+                })
+                .catch(error => {
+                    console.log(error);
+                });
             } else if (commandArray[1] === "random") {
                 console.log("get random");
+                axios.get(ingest + 'info.0.json')
+                .then(response => {
+                    let data = response.data;
+                    let num = Math.floor(Math.random() * (data.num - 1)) + 1;
+                    console.log("Chosen XKCD " + num);
+                    axios.get(ingest + num + '/info.0.json')
+                    .then(response => {
+                        let data = response.data;
+                        let xkcd = new XKCD(data.num, data.safe_title, data.title, data.alt, data.month, data.day, data.year, data.img);
+                        msg.channel.send(getXKCDEmbed(xkcd));
+                        msg.delete();
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+                })
+                .catch(error => {
+                    console.log(error);
+                });
             } else if (sc_id.test(commandArray[1])) {
                 console.log("get id " + commandArray[1]);
+                axios.get(ingest + commandArray[1] + '/info.0.json')
+                .then(response => {
+                    let data = response.data;
+                    let xkcd = new XKCD(data.num, data.safe_title, data.title, data.alt, data.month, data.day, data.year, data.img);
+                    msg.channel.send(getXKCDEmbed(xkcd));
+                    msg.delete();
+                })
+                .catch(error => {
+                    console.log(error);
+                });
             } else {
                 var error = msg.channel.send(
                     getError(
@@ -163,7 +242,8 @@ async function commandHandler(msg) {
 client.on("message", (msg) => commandHandler(msg));
 
 client.on("ready", () => {
-    console.log(`Logged in as ${client.user.tag}`)
+    console.log(`Logged in as ${client.user.tag}`);
+    client.user.setPresence({ activity: { name: 'with XKCD | x!help' }, status: 'online' });
 });
 
 client.login(bot_options.token);

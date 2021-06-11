@@ -24,5 +24,8 @@
   "homepage": "https://github.com/c0repwn3r/xkcdbot#readme",
   "dependencies": {
     "discord.js": "^12.5.3"
+  },
+  "devDependencies": {
+    "axios": "^0.21.1"
   }
 }
