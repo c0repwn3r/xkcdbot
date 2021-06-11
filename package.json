@@ -1,0 +1,25 @@
+{
+  "name": "xkcdbot",
+  "version": "1.0.0",
+  "description": "A bot for getting XKCDs. Simple.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/c0repwn3r/xkcdbot.git"
+  },
+  "keywords": [
+    "xkcd",
+    "bot",
+    "discord.js",
+    "xkcdbot"
+  ],
+  "author": "c0repwn3r",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/c0repwn3r/xkcdbot/issues"
+  },
+  "homepage": "https://github.com/c0repwn3r/xkcdbot#readme"
+}
