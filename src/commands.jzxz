@@ -1,0 +1,60 @@
+client discord.js
+prefix 'x!'
+
+command 'get' ->
+    subcommands ->
+        subcommand 'latest' ->
+            call js {'get_latest'}
+        <
+        subcommand 'random' ->
+            call js {'get_random'}
+        <
+        subcommand __default__ ->
+            if paramcount >1<2 ->
+                call js {'get_id'}
+            <
+        <
+        subcommand error ->
+                call js {'invalid_command'}
+            <
+        <
+    <
+
+    format ->
+        define 'x!get <latest|random|some_xkcd_number>'
+    <
+    
+    description ->
+        define 'Get the latest XKCD, a random XKCD, or an XKCD by number.'
+    <
+<
+
+command 'help' ->
+    call builtin {'display_help'}
+<
+
+command 'ping' ->
+    call builtin {'bot_user_ping'}
+<
+
+command 'pwr' ->
+    require permission developer !-> call js {'permission_error'}
+
+    subcommands ->
+        subcommand 'shutdown' ->
+            call js {'prepare_shutdown'}
+            call builtin {'graceful_shutdown'}
+        <
+
+        subcommand 'restart' ->
+            call js {'prepare_restart'}
+            call builtin {'graceful_restart'}
+        <
+
+        subcommand 'restart_debug' ->
+            call js {'prepare_restart'}
+            call builtin {'set_debug_flag'}
+            call builtin {'graceful_restart'}
+        <
+    <
+<
