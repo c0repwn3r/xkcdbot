@@ -22,7 +22,7 @@
     "url": "https://github.com/c0repwn3r/xkcdbot/issues"
   },
   "homepage": "https://github.com/c0repwn3r/xkcdbot#readme",
-  "devDependencies": {
+  "dependencies": {
     "discord.js": "^12.5.3"
   }
 }
